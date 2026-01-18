@@ -7,7 +7,7 @@ from routes.firebase_service import get_bucket
 
 image_bp = Blueprint("image", __name__, template_folder="../templates")
 
-FOLDER_ID = os.environ["GOOGLE_DRIVE_FOLDER_ID"]
+
 
 @image_bp.route("/upload", methods=["POST"])
 def upload_image():

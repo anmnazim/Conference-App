@@ -3,7 +3,7 @@ import uuid
 import os
 from flask import Blueprint, request, jsonify, current_app, render_template
 from googleapiclient.http import MediaIoBaseUpload
-from routes.drive_service import get_drive_service
+from routes.firebase_service import get_bucket
 
 image_bp = Blueprint("image", __name__, template_folder="../templates")
 
@@ -18,41 +18,25 @@ def upload_image():
     if not all([name, course, image]):
         return jsonify({"error": "All fields required"}), 400
 
-    drive_service = get_drive_service()
+    bucket = get_bucket()
 
-    filename = f"{uuid.uuid4()}_{image.filename}"
+    filename = f"students/{uuid.uuid4()}_{image.filename}"
+    blob = bucket.blob(filename)
 
-    media = MediaIoBaseUpload(
-        io.BytesIO(image.read()),
-        mimetype=image.mimetype,
-        resumable=True
-    )
+    blob.upload_from_file(image, content_type=image.mimetype)
+    blob.make_public()
 
-    uploaded = drive_service.files().create(
-        body={
-            "name": filename,
-            "parents": [FOLDER_ID]
-        },
-        media_body=media,
-        fields="id"
-    ).execute()
-
-    file_id = uploaded["id"]
-
-    view_url = f"https://drive.google.com/uc?id={file_id}"
-    download_url = f"https://drive.google.com/uc?id={file_id}&export=download"
+    image_url = blob.public_url
 
     current_app.mongo.db.students.insert_one({
         "name": name,
         "course": course,
-        "file_id": file_id,
-        "view_url": view_url,
-        "download_url": download_url
+        "image_url": image_url
     })
 
     return jsonify({
         "message": "Uploaded successfully",
-        "view_url": view_url
+        "image_url": image_url
     }), 201
 @image_bp.route("/logo", methods=["GET"])
 def teacher_page():

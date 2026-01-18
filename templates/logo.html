@@ -1,26 +1,22 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Teacher Image Verification Panel</title>
+    <title>Logo Image Verification Panel</title>
     <style>
         table {
             width: 100%;
             border-collapse: collapse;
         }
-
         th, td {
             border: 1px solid #ccc;
             padding: 12px;
             text-align: center;
         }
-
         img.thumbnail {
             width: 80px;
             cursor: pointer;
             border-radius: 5px;
         }
-
-        /* MODAL STYLES */
         .modal {
             display: none;
             position: fixed;
@@ -31,16 +27,13 @@
             height: 100%;
             background-color: rgba(0,0,0,0.85);
         }
-
         .modal img {
             display: block;
             margin: auto;
             max-width: 90%;
             max-height: 90%;
             margin-top: 3%;
-            border-radius: 8px;
         }
-
         .close {
             position: absolute;
             top: 15px;
@@ -60,31 +53,32 @@
         <th>Name</th>
         <th>Course</th>
         <th>Image</th>
-        
         <th>Download</th>
     </tr>
 
     {% for s in students %}
-<tr>
-    <td>{{ s.name }}</td>
-    <td>{{ s.course}}</td>
-    <td>
-        <img
-          src="/{{ s.image_path }}"
-          class="thumbnail"
-          onclick="openModal(this.src)">
-    </td>
-    
-    <td>
-        <a href="/{{ s.image_path }}" download>
-            <button>Download</button>
-        </a>
-    </td>
-</tr>
-{% endfor %}
+    <tr>
+        <td>{{ s.name }}</td>
+        <td>{{ s.course }}</td>
+        <td>
+           <td>
+  {% if s.view_url %}
+    <img src="{{ s.view_url }}"
+         class="thumbnail"
+         onclick="openModal('{{ s.view_url }}')">
+  {% else %}
+    <span>NO IMAGE</span>
+  {% endif %}
+</td>
+        <td>
+            <a href="{{ s.download_url }}">
+                <button>Download</button>
+            </a>
+        </td>
+    </tr>
+    {% endfor %}
 </table>
 
-<!-- MODAL -->
 <div class="modal" id="imgModal">
     <span class="close" onclick="closeModal()">&times;</span>
     <img id="modalImg">
@@ -95,7 +89,6 @@ function openModal(src) {
     document.getElementById("modalImg").src = src;
     document.getElementById("imgModal").style.display = "block";
 }
-
 function closeModal() {
     document.getElementById("imgModal").style.display = "none";
 }

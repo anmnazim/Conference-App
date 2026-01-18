@@ -54,3 +54,7 @@ def upload_image():
         "message": "Uploaded successfully",
         "view_url": view_url
     }), 201
+@image_bp.route("/logo", methods=["GET"])
+def teacher_page():
+    students = list(current_app.mongo.db.students.find())
+    return render_template("logo.html", students=students)

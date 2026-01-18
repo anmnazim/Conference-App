@@ -3,7 +3,7 @@ import uuid
 import os 
 from flask import Blueprint, request, jsonify, current_app, render_template
 from googleapiclient.http import MediaIoBaseUpload
-from drive_service import get_drive_service
+from routes.drive_service import get_drive_service
 
 image_bp = Blueprint("image", __name__, template_folder="../templates")
 

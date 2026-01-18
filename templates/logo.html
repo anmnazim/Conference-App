@@ -60,20 +60,25 @@
     <tr>
         <td>{{ s.name }}</td>
         <td>{{ s.course }}</td>
+
         <td>
-           <td>
-  {% if s.view_url %}
-    <img src="{{ s.view_url }}"
-         class="thumbnail"
-         onclick="openModal('{{ s.view_url }}')">
-  {% else %}
-    <span>NO IMAGE</span>
-  {% endif %}
-</td>
+            {% if s.image_url %}
+                <img src="{{ s.image_url }}"
+                     class="thumbnail"
+                     onclick="openModal('{{ s.image_url }}')">
+            {% else %}
+                <span>NO IMAGE</span>
+            {% endif %}
+        </td>
+
         <td>
-            <a href="{{ s.download_url }}">
-                <button>Download</button>
-            </a>
+            {% if s.image_url %}
+                <a href="{{ s.image_url }}" download>
+                    <button>Download</button>
+                </a>
+            {% else %}
+                —
+            {% endif %}
         </td>
     </tr>
     {% endfor %}

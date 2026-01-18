@@ -1,14 +1,17 @@
-import io
 import uuid
 import os
 from flask import Blueprint, request, jsonify, current_app, render_template
-from googleapiclient.http import MediaIoBaseUpload
-from routes.firebase_service import get_bucket
+from imagekitio import ImageKit
 
 image_bp = Blueprint("image", __name__, template_folder="../templates")
 
+imagekit = ImageKit(
+    public_key=os.environ["IMAGEKIT_PUBLIC_KEY"],
+    private_key=os.environ["IMAGEKIT_PRIVATE_KEY"],
+    url_endpoint=os.environ["IMAGEKIT_URL_ENDPOINT"]
+)
 
-
+# ---------------- STUDENT UPLOAD ----------------
 @image_bp.route("/upload", methods=["POST"])
 def upload_image():
     name = request.form.get("name")
@@ -18,15 +21,14 @@ def upload_image():
     if not all([name, course, image]):
         return jsonify({"error": "All fields required"}), 400
 
-    bucket = get_bucket()
-
     filename = f"students/{uuid.uuid4()}_{image.filename}"
-    blob = bucket.blob(filename)
 
-    blob.upload_from_file(image, content_type=image.mimetype)
-    blob.make_public()
+    upload = imagekit.upload_file(
+        file=image.read(),
+        file_name=filename
+    )
 
-    image_url = blob.public_url
+    image_url = upload["url"]
 
     current_app.mongo.db.students.insert_one({
         "name": name,
@@ -38,6 +40,9 @@ def upload_image():
         "message": "Uploaded successfully",
         "image_url": image_url
     }), 201
+
+
+# ---------------- LOGO VIEW PAGE ----------------
 @image_bp.route("/logo", methods=["GET"])
 def teacher_page():
     students = list(current_app.mongo.db.students.find())

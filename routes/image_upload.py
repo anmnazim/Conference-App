@@ -3,7 +3,6 @@ import os
 from flask import Blueprint, request, jsonify, current_app, render_template
 from imagekitio import ImageKit
 
-
 image_bp = Blueprint("image", __name__, template_folder="../templates")
 
 imagekit = ImageKit(
@@ -24,11 +23,12 @@ def upload_image():
 
     filename = f"students/{uuid.uuid4()}_{image.filename}"
 
+    # 🔑 CRITICAL PART
     image.stream.seek(0)
 
     upload = imagekit.upload_file(
-        file=image,
-        file_name=filename
+        file=image.read(),      # bytes
+        file_name=filename      # includes extension
     )
 
     image_url = upload.url
@@ -43,7 +43,6 @@ def upload_image():
         "message": "Uploaded successfully",
         "image_url": image_url
     }), 201
-
 
 
 # ---------------- LOGO VIEW PAGE ----------------

@@ -3,6 +3,7 @@ import os
 from flask import Blueprint, request, jsonify, current_app, render_template
 from imagekitio import ImageKit
 
+
 image_bp = Blueprint("image", __name__, template_folder="../templates")
 
 imagekit = ImageKit(
@@ -23,22 +24,17 @@ def upload_image():
 
     filename = f"students/{uuid.uuid4()}_{image.filename}"
 
-    # 🔑 Reset stream BEFORE upload
     image.stream.seek(0)
 
     upload = imagekit.upload_file(
         file=image,
         file_name=filename,
-        options={
-            "is_private_file": False
-        }
+        is_private_file=False
     )
-
-    image_url = upload.url
 
     return jsonify({
         "message": "Uploaded successfully",
-        "image_url": image_url
+        "image_url": upload.url
     }), 201
 
 

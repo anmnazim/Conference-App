@@ -28,13 +28,15 @@ def upload_image():
     file_name=filename
 )
 
+    upload = imagekit.upload_file(
+    file=image.read(),
+    file_name=filename,
+    options={
+        "is_private_file": False
+    }
+)
+ 
     image_url = upload.url
-
-    current_app.mongo.db.students.insert_one({
-        "name": name,
-        "course": course,
-        "image_url": image_url
-    })
 
     return jsonify({
         "message": "Uploaded successfully",

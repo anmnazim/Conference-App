@@ -23,19 +23,17 @@ def upload_image():
 
     filename = f"students/{uuid.uuid4()}_{image.filename}"
 
-    upload = imagekit.upload_file(
-    file=image.read(),
-    file_name=filename
-)
+    # 🔑 Reset stream BEFORE upload
+    image.stream.seek(0)
 
     upload = imagekit.upload_file(
-    file=image.read(),
-    file_name=filename,
-    options={
-        "is_private_file": False
-    }
-)
- 
+        file=image,
+        file_name=filename,
+        options={
+            "is_private_file": False
+        }
+    )
+
     image_url = upload.url
 
     return jsonify({
